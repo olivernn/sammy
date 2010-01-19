@@ -180,10 +180,18 @@
             this.route('get', '#/test', function() {
               $('.get_area').text('test success');
             });
-          
+            
+            this.route('post', '#/live_test', function() {
+              this.app.form_was_run = 'YES';
+              this.app.form_params = this.params;
+              console.log(this.app.form_was_run)
+              return false;
+            });
+            
             this.route('post', /test/, function() {
               this.app.form_was_run = 'YES';
               this.app.form_params = this.params;
+              console.log(this.app.form_was_run)
               return false;
             });
           
@@ -214,11 +222,22 @@
         var app = this.app;
         app.run('#/');
         $('#main form').submit();
-        matches(/sammy-app/, $('#main form')[0].className);
+        matches(/sammy-app/, $('#test_form')[0].className);
         soon(function() {
           equals(app.form_was_run, 'YES');
           app.unload();
         }, this, 1, 2);
+      })
+      .should('bind events to all future forms', function () {
+        var app = this.app;
+        app.run('#/');
+        // add a new form to the page
+        $('#live').append('<form id="live_form" action="#/live_test" method="post"><input name="live_test" type="text" value="live"></input></form>');
+        $('#live_form').submit();
+        soon(function() {
+          equals(app.form_was_run, 'YES');
+          app.unload();
+        }, this, 1, 1);
       })
       .should('trigger routes on URL change', function() {
         var app = this.app;
